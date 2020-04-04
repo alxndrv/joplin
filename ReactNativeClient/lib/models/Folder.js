@@ -114,7 +114,7 @@ class Folder extends BaseItem {
 
 		const where = !includeCompletedTodos ? 'WHERE (notes.is_todo = 0 OR notes.todo_completed = 0)' : '';
 
-		const sql = `SELECT folders.id as folder_id, count(notes.parent_id) as note_count 
+		const sql = `SELECT folders.id as folder_id, count(notes.parent_id) as note_count
 			FROM folders LEFT JOIN notes ON notes.parent_id = folders.id
 			${where} GROUP BY folders.id`;
 
@@ -190,13 +190,29 @@ class Folder extends BaseItem {
 		return output;
 	}
 
+	static async sortLocale(folders, orderDir) {
+		const output = folders.slice();
+		const direction = orderDir === 'ASC' ? +1 : -1;
+
+		const collator = new Intl.Collator(undefined, {
+			numeric: true,
+			sensitivity: 'base',
+		});
+
+		output.sort(function(a, b) {
+			return collator.compare(a.title, b.title) * direction;
+		});
+
+		return output;
+	}
+
 	static async all(options = null) {
 		const output = await super.all(options);
 		if (options && options.includeConflictFolder) {
 			const conflictCount = await Note.conflictedCount();
 			if (conflictCount) output.push(this.conflictFolder());
 		}
-		return output;
+		return await this.sortLocale(output, options.order[0].dir);
 	}
 
 	static async childrenIds(folderId, recursive) {
