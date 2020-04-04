@@ -68,6 +68,13 @@ class NoteTextViewerComponent extends React.Component {
 		this.webviewRef_.current.contentWindow.addEventListener('message', this.webview_message);
 	}
 
+	focus() {
+		if (this.webviewRef_) {
+			console.log('Running focus in webview component');
+			this.webviewRef_.current.focus();
+		}
+	}
+
 	destroyWebview() {
 		const wv = this.webviewRef_.current;
 		if (!wv || !this.initialized_) return;

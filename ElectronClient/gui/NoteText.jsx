@@ -1175,8 +1175,14 @@ class NoteTextComponent extends React.Component {
 
 		if (command.name === 'focusElement' && command.target === 'noteBody') {
 			fn = () => {
-				if (!this.editor_) return;
-				this.editor_.editor.focus();
+				const panes = this.props.visiblePanes;
+				if (panes.length === 1 && panes.indexOf('viewer' !== -1)) {
+					if (!this.webviewRef_.current) return;
+					this.webviewRef().focus();
+				} else {
+					if (!this.editor_) return;
+					this.editor_.editor.focus();
+				}
 			};
 		}
 
